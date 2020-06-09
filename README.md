@@ -22,13 +22,16 @@ c8db56825ae71d6d79447849e617115f4a920fa2acdcab2b053c4b2838bd6b71
 The secret is the same as `NhqPtmdSJYdKjVHjA7PZj4Mge3R5YNiP1e3UZjInClVN65XAbvqqM6A7H5fATj0j`
 
 ## Should I look into this repo
-- if you don't what's signature
+- if you don't know what's signature
 - if you don't know how to do sha256 hashing in a language
 - if your signature can't pass the server's validation
 
 ## Which language included
 - Python
-- and more
+- Shell
+- Ruby
+- NodeJS
+- PHP
 
 ## License
 MIT
