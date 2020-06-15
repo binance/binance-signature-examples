@@ -2,6 +2,7 @@ import hmac
 import time
 import hashlib
 import requests
+import json
 from urllib.parse import urlencode
 
 """ This is a very simple script working on Binance API
@@ -45,7 +46,9 @@ def dispatch_request(http_method):
     }.get(http_method, 'GET')
 
 def send_request(http_method, url_path, payload={}):
-    query_string = urlencode(payload, True)
+    query_string = urlencode(payload)
+    # replace single quote to double quote
+    query_string = query_string.replace('%27', '%22')
     if query_string:
         query_string = "{}&timestamp={}".format(query_string, get_timestamp())
     else:
@@ -75,4 +78,32 @@ params = {
     "price": "15"
 }
 response = send_request('POST', '/fapi/v1/order', params)
+print(response)
+
+
+# place an order
+# if you see order response, then the parameters setting is correct
+# if it has response from server saying some parameter error, please adjust the parameters according the market.
+params = {
+    "batchOrders": [
+        {
+            "symbol":"BNBUSDT",
+            "side": "BUY",
+            "type": "STOP",
+            "quantity": "1",
+            "price": "9000",
+            "timeInForce": "GTC",
+            "stopPrice": "9100"
+        },
+        {
+            "symbol":"BNBUSDT",
+            "side": "BUY",
+            "type": "LIMIT",
+            "quantity": "1",
+            "price": "15",
+            "timeInForce": "GTC"
+        },
+    ]
+}
+response = send_request('POST', '/fapi/v1/batchOrders', params)
 print(response)
