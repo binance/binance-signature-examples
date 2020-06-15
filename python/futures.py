@@ -81,7 +81,7 @@ response = send_request('POST', '/fapi/v1/order', params)
 print(response)
 
 
-# place an order
+# place batch orders
 # if you see order response, then the parameters setting is correct
 # if it has response from server saying some parameter error, please adjust the parameters according the market.
 params = {
