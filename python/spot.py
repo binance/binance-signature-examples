@@ -103,7 +103,6 @@ print(response)
 
 
 # transfer funds
-# if you see order response, then the parameters setting is correct
 params = {
     "fromEmail": "",
     "toEmail": "",
