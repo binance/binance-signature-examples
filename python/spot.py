@@ -88,7 +88,7 @@ response = send_signed_request('GET', '/api/v3/account')
 print(response)
 
 
-# place an order
+# # place an order
 # if you see order response, then the parameters setting is correct
 params = {
     "symbol": "BNBUSDT",
@@ -99,4 +99,16 @@ params = {
     "price": "20"
 }
 response = send_signed_request('POST', '/api/v3/order', params)
+print(response)
+
+
+# transfer funds
+# if you see order response, then the parameters setting is correct
+params = {
+    "fromEmail": "",
+    "toEmail": "",
+    "asset": "USDT",
+    "amount": "1"
+}
+response = send_signed_request('POST', '/wapi/v3/sub-account/transfer.html', params)
 print(response)
