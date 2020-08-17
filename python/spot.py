@@ -25,8 +25,8 @@ python spot.py
 
 KEY = ''
 SECRET = ''
-# BASE_URL = 'https://api.binance.com' # production base url
-BASE_URL = 'https://testnet.binance.vision' # testnet base url
+BASE_URL = 'https://api.binance.com' # production base url
+# BASE_URL = 'https://testnet.binance.vision' # testnet base url
 
 ''' ======  begin of functions, you don't need to touch ====== '''
 def hashing(query_string):
@@ -107,7 +107,17 @@ params = {
     "fromEmail": "",
     "toEmail": "",
     "asset": "USDT",
-    "amount": "1"
+    "amount": "0.1"
 }
 response = send_signed_request('POST', '/wapi/v3/sub-account/transfer.html', params)
+print(response)
+
+
+# New Future Account Transfer (FUTURES)
+params = {
+    "asset": "USDT",
+    "amount": 0.01,
+    "type": 2
+}
+response = send_signed_request('POST', '/sapi/v1/futures/transfer', params)
 print(response)
