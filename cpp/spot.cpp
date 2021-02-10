@@ -11,9 +11,9 @@
 using namespace std;
 
 const string baseUrl = "https://api.binance.com";
-/*Fill in api key and secret key*/
-const string apiKey = "";
-const string apiSecret = "";
+/*export api key and secret key to environment*/
+const string apiKey = getenv("BINANCE_API_KEY");
+const string apiSecret = getenv("BINANCE_API_SECRET");
 
 static string gs_strLastResponse;
 
@@ -61,16 +61,39 @@ string joinQueryParameters(const unordered_map<string,string> &parameters) {
 	return queryString;
 }
 
-string setUrlPublicRequest(string urlPath, const unordered_map<string,string> &parameters) {
+/*Sending the HTTP Request and printing the response*/
+void executeHTTPRequest(CURL *curl) {
+	CURLcode res;
+	gs_strLastResponse = "";
+	/* Perform the request, res will get the return code */ 
+	res = curl_easy_perform(curl);
+	/* Check for errors */ 
+	if(res != CURLE_OK)
+	  fprintf(stderr, "curl_easy_perform() failed: %s\n",
+	          curl_easy_strerror(res));
+	cout << gs_strLastResponse << endl;
+}
+
+/*Write the server response to string for display*/
+size_t WriteCallback(char *contents, size_t size, size_t nmemb, void *userp) {
+    gs_strLastResponse += (const char*)contents;
+    gs_strLastResponse += '\n';
+    return size * nmemb;
+}
+
+void sendPublicRequest(CURL *curl, string urlPath, unordered_map<string,string> &parameters) {
 	string url = baseUrl + urlPath + '?';
     if (!parameters.empty()) {
     	url += joinQueryParameters(parameters);
     }
     cout << "url:" << url << endl;
-	return url;
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+	parameters.clear();
+	executeHTTPRequest(curl);
 }
 
-string setUrlSignedRequest(string httpMethod, string urlPath, const unordered_map<string,string> &parameters) {
+void sendSignedRequest(CURL *curl, string httpMethod, string urlPath, unordered_map<string,string> &parameters) {
 	string url = baseUrl + urlPath + '?';
 	string queryString = "";
 	string timeStamp = "timestamp=" + getTimestamp();
@@ -84,33 +107,25 @@ string setUrlSignedRequest(string httpMethod, string urlPath, const unordered_ma
 		url += timeStamp;
 		queryString += timeStamp;
 	}
+
 	string signature = getSignature(queryString);
 	url += signature;
 	queryString += signature;
 	cout << "url:" << url << endl;
+
 	if (httpMethod == "POST") {
-		return queryString;
+		curl_easy_setopt(curl, CURLOPT_URL, (baseUrl + urlPath).c_str());
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, queryString.c_str());
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+		parameters.clear();
+		executeHTTPRequest(curl);
 	}
-	return url;
-}
 
-size_t WriteCallback(char *contents, size_t size, size_t nmemb, void *userp)
-{
-    gs_strLastResponse += (const char*)contents;
-    gs_strLastResponse += '\n';
-    return size * nmemb;
-}
-
-void executeHTTPRequest(CURL *curl) {
-	CURLcode res;
-	gs_strLastResponse = "";
-	/* Perform the request, res will get the return code */ 
-	res = curl_easy_perform(curl);
-	/* Check for errors */ 
-	if(res != CURLE_OK)
-	  fprintf(stderr, "curl_easy_perform() failed: %s\n",
-	          curl_easy_strerror(res));
-	cout << gs_strLastResponse << endl;
+	else {
+		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+		executeHTTPRequest(curl);
+	}
 }
 
 int main() {
@@ -136,24 +151,20 @@ int main() {
 			{"symbol", "BTCUSDT"},
 			{"interval", "1d"},
 			{"limit", "10"}});
-		curl_easy_setopt(curl, CURLOPT_URL, setUrlPublicRequest("/api/v3/klines", parameters).c_str());
-		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-		parameters.clear();
-		executeHTTPRequest(curl);
+		sendPublicRequest(curl, "/api/v3/klines", parameters);
+		
 
 		/*
 		get account informtion
 		if you can see the account details, then the API key/secret is correct
 		*/
-		curl_easy_setopt(curl, CURLOPT_URL, setUrlSignedRequest("GET", "/api/v3/account", parameters).c_str());
-		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-		executeHTTPRequest(curl);
+		sendSignedRequest(curl, "GET", "/api/v3/account", parameters);
 
 
-		// /*
-		// place an order
-		// if you see order response, then the parameters setting is correct
-		// */
+		/*
+		place an order
+		if you see order response, then the parameters setting is correct
+		*/
 		parameters.insert({
 			{"symbol", "BNBUSDT"},
 			{"side", "BUY"},
@@ -161,12 +172,7 @@ int main() {
 			{"timeInForce", "GTC"},
 			{"quantity", "1"},
 			{"price", "0.001"}});
-		queryString = setUrlSignedRequest("POST", "/api/v3/order", parameters);
-		curl_easy_setopt(curl, CURLOPT_URL, (baseUrl + "/api/v3/order").c_str());
-		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, queryString.c_str());
-		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-		parameters.clear();
-		executeHTTPRequest(curl);
+		sendSignedRequest(curl, "POST", "/api/v3/order", parameters);
 
 		/*
 		transfer funds
@@ -176,12 +182,7 @@ int main() {
 			{"toEmail", ""},
 			{"asset", "USDT"},
 			{ "amount", "0.1"}});
-		queryString = setUrlSignedRequest("POST", "/wapi/v3/sub-account/transfer.html", parameters);
-		curl_easy_setopt(curl, CURLOPT_URL, (baseUrl + "/wapi/v3/sub-account/transfer.html").c_str());
-		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, queryString.c_str());
-		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-		parameters.clear();
-		executeHTTPRequest(curl);
+		sendSignedRequest(curl, "POST", "/sapi/v1/asset/transfer", parameters);
 		
 		/*
 		New Future Account Transfer (FUTURES)
@@ -190,12 +191,8 @@ int main() {
 			{"asset", "USDT"},
 			{"amount", "0.01"},
 			{"type", "2"}});
-		queryString = setUrlSignedRequest("POST", "/sapi/v1/futures/transfer", parameters);
-		curl_easy_setopt(curl, CURLOPT_URL, (baseUrl + "/sapi/v1/futures/transfer").c_str());
-		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, queryString.c_str());
-		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-		parameters.clear();
-		executeHTTPRequest(curl);
+		sendSignedRequest(curl, "POST", "/sapi/v1/futures/transfer", parameters);
+
 			
 		/* always cleanup */ 
 		curl_easy_cleanup(curl);
