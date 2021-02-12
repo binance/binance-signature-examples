@@ -171,7 +171,7 @@ int main() {
 			{"type", "LIMIT"},
 			{"timeInForce", "GTC"},
 			{"quantity", "1"},
-			{"price", "0.001"}});
+			{"price", "50"}});
 		sendSignedRequest(curl, "POST", "/api/v3/order", parameters);
 
 		/*
