@@ -93,8 +93,7 @@ public class Spot {
     	/*
 		transfer funds
 		*/
-    	parameters.put("fromEmail", "");
-    	parameters.put("toEmail", "");
+    	parameters.put("type", "MAIN_C2C");
     	parameters.put("asset", "USDT");
     	parameters.put("amount", "0.1");
     	spot.sendSignedRequest("POST", "/sapi/v1/asset/transfer");
