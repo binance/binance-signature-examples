@@ -11,35 +11,8 @@ public class Spot {
 	private static final String API_KEY = System.getenv("BINANCE_API_KEY");
 	private static final String API_SECRET = System.getenv("BINANCE_API_SECRET");
 	private static HashMap<String,String> parameters = new HashMap<String,String>();
-	private static final String HMAC_SHA256 = "HmacSHA256";
-
-	private void printResponse(HttpURLConnection con) throws IOException {
-		BufferedReader in = new BufferedReader(new InputStreamReader(
-					con.getInputStream()));
-		String inputLine;
-		StringBuffer response = new StringBuffer();
-
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}
-		in.close();
-
-		System.out.println(response.toString());
-	}
-
-	private void printError(HttpURLConnection con) throws IOException {
-		BufferedReader in = new BufferedReader(new InputStreamReader(
-					con.getErrorStream()));
-		String inputLine;
-		StringBuffer response = new StringBuffer();
-
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}
-		in.close();
-
-		System.out.println(response.toString());
-	}
+	private Signature sign = new Signature();
+	private Request httpRequest = new Request();
 
 	//concatenate query parameters
 	private String joinQueryParameters() {
@@ -62,54 +35,12 @@ public class Spot {
 		return "timestamp=" + String.valueOf(timestamp);
 	}
 
-	//convert byte array to hex string
-	private String bytesToHex(byte[] bytes) {   
-        final char[] hexArray = "0123456789abcdef".toCharArray();
-        char[] hexChars = new char[bytes.length * 2];
-        for (int j = 0, v; j < bytes.length; j++) {
-            v = bytes[j] & 0xFF;
-            hexChars[j * 2] = hexArray[v >>> 4];
-            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-        }
-        return new String(hexChars);
-    }
-
-	private String getSignature(byte[] data, byte[] key) {
-		byte[] hmacSha256 = null;
-		try {
-			SecretKeySpec secretKeySpec = new SecretKeySpec(key, HMAC_SHA256);
-		    Mac mac = Mac.getInstance(HMAC_SHA256);
-		    mac.init(secretKeySpec);
-		    hmacSha256 = mac.doFinal(data);
-		} catch (Exception e) {
-	      	throw new RuntimeException("Failed to calculate hmac-sha256", e);
-	    }
-	    return bytesToHex(hmacSha256);
-	}
-
-	private void executeHTTPRequest(URL obj, String httpMethod) throws Exception {
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		if (httpMethod != null) {
-			con.setRequestMethod(httpMethod);
-		}
-		//add API_KEY to header content
-		con.setRequestProperty("X-MBX-APIKEY", API_KEY);
-
-		int responseCode = con.getResponseCode();
-		if (responseCode == HttpURLConnection.HTTP_OK) { // success
-			printResponse(con);
-		} else {
-			printError(con);
-		}
-
-	}
-
 	private void sendPublicRequest(String urlPath) throws Exception {
 		String queryPath = joinQueryParameters();
 		URL obj = new URL(BASE_URL + urlPath + "?" + queryPath);
 		System.out.println("url:" + obj.toString());
 
-		executeHTTPRequest(obj, null);		
+		httpRequest.send(obj, null, API_KEY);		
 	}
 
 	private void sendSignedRequest(String httpMethod, String urlPath) throws Exception {
@@ -119,21 +50,17 @@ public class Spot {
 		} else {
 			queryPath += getTimeStamp();
 		}
-
-		String signature = getSignature(queryPath.getBytes(), API_SECRET.getBytes());
+		String signature = sign.getSignature(queryPath, API_SECRET);
 		queryPath += "&signature=" + signature;
 
 		URL obj = new URL(BASE_URL + urlPath + "?" + queryPath);
 		System.out.println("url:" + obj.toString());
 
-		executeHTTPRequest(obj, httpMethod);
-		
-
+		httpRequest.send(obj, httpMethod, API_KEY);
 	}
 
     public static void main(String args[]) throws Exception {
     	Spot spot = new Spot();
-
     	/*
 		### public data endpoint, call send_public_request #####
 		get klines
