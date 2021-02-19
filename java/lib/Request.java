@@ -5,6 +5,17 @@ import java.util.*;
 
 public class Request {
 
+	String baseUrl;
+	String apiKey;
+	String apiSecret;
+	Signature sign = new Signature();
+
+	public Request(String baseUrl, String apiKey, String apiSecret) {
+		this.baseUrl = baseUrl;
+		this.apiKey = apiKey;
+		this.apiSecret = apiSecret;
+	}
+
 	private void printResponse(HttpURLConnection con) throws IOException {
 		BufferedReader in = new BufferedReader(new InputStreamReader(
 					con.getInputStream()));
@@ -33,7 +44,28 @@ public class Request {
 		System.out.println(response.toString());
 	}
 
-	public void send(URL obj, String httpMethod, String apiKey) throws Exception {
+	private String getTimeStamp() {
+		long timestamp = System.currentTimeMillis();
+		return "timestamp=" + String.valueOf(timestamp);
+	}
+
+	//concatenate query parameters
+	private String joinQueryParameters(HashMap<String,String> parameters) {
+		String urlPath = "";
+		boolean isFirst = true;
+
+		for (Map.Entry mapElement : parameters.entrySet()) {
+			if (isFirst) {
+				isFirst = false;
+				urlPath += (String)mapElement.getKey() + "=" + (String)mapElement.getValue();
+			} else {
+				urlPath += "&" + (String)mapElement.getKey() + "=" + (String)mapElement.getValue();
+			}
+		}
+		return urlPath;
+	}
+
+	private void send(URL obj, String httpMethod) throws Exception {
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 		if (httpMethod != null) {
 			con.setRequestMethod(httpMethod);
@@ -48,5 +80,29 @@ public class Request {
 			printError(con);
 		}
 
+	}
+
+	public void sendPublicRequest(HashMap<String,String> parameters, String urlPath) throws Exception {
+		String queryPath = joinQueryParameters(parameters);
+		URL obj = new URL(baseUrl + urlPath + "?" + queryPath);
+		System.out.println("url:" + obj.toString());
+
+		send(obj, null);		
+	}
+
+	public void sendSignedRequest(HashMap<String,String> parameters, String urlPath, String httpMethod) throws Exception {
+		String queryPath = "";
+		if (!parameters.isEmpty()) {
+			queryPath += joinQueryParameters(parameters) + "&" + getTimeStamp();
+		} else {
+			queryPath += getTimeStamp();
+		}
+		String signature = sign.getSignature(queryPath, apiSecret);
+		queryPath += "&signature=" + signature;
+
+		URL obj = new URL(baseUrl + urlPath + "?" + queryPath);
+		System.out.println("url:" + obj.toString());
+
+		send(obj, httpMethod);
 	}
 }

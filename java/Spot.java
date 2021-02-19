@@ -7,106 +7,60 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 public class Spot {
-	private static final String BASE_URL = "https://api.binance.com";
 	private static final String API_KEY = System.getenv("BINANCE_API_KEY");
 	private static final String API_SECRET = System.getenv("BINANCE_API_SECRET");
-	private static HashMap<String,String> parameters = new HashMap<String,String>();
-	private Signature sign = new Signature();
-	private Request httpRequest = new Request();
+	HashMap<String,String> parameters = new HashMap<String,String>();
+	Request httpRequest;
 
-	//concatenate query parameters
-	private String joinQueryParameters() {
-		String urlPath = "";
-		boolean isFirst = true;
-
-		for (Map.Entry mapElement : parameters.entrySet()) {
-			if (isFirst) {
-				isFirst = false;
-				urlPath += (String)mapElement.getKey() + "=" + (String)mapElement.getValue();
-			} else {
-				urlPath += "&" + (String)mapElement.getKey() + "=" + (String)mapElement.getValue();
-			}
-		}
-		return urlPath;
+	public Spot() {
+		String baseUrl = "https://api.binance.com";
+		httpRequest = new Request(baseUrl, API_KEY, API_SECRET);
+	}
+	
+	/*
+	Allow changing of base url to connect to testnet environment
+	*/
+	public Spot(String baseUrl) {
+		httpRequest = new Request(baseUrl, API_KEY, API_SECRET);
 	}
 
-	private String getTimeStamp() {
-		long timestamp = System.currentTimeMillis();
-		return "timestamp=" + String.valueOf(timestamp);
+	public void klines(String symbol, String interval, String limit) throws Exception {
+		parameters.put("symbol",symbol);
+    	parameters.put("interval",interval);
+    	parameters.put("limit",limit);
+    	httpRequest.sendPublicRequest(parameters, "/api/v3/klines");
+    	parameters.clear();
+
 	}
 
-	private void sendPublicRequest(String urlPath) throws Exception {
-		String queryPath = joinQueryParameters();
-		URL obj = new URL(BASE_URL + urlPath + "?" + queryPath);
-		System.out.println("url:" + obj.toString());
-
-		httpRequest.send(obj, null, API_KEY);		
+	public void account() throws Exception {
+		httpRequest.sendSignedRequest(parameters, "/api/v3/account", "GET");
 	}
 
-	private void sendSignedRequest(String httpMethod, String urlPath) throws Exception {
-		String queryPath = "";
-		if (!parameters.isEmpty()) {
-			queryPath += joinQueryParameters() + "&" + getTimeStamp();
-		} else {
-			queryPath += getTimeStamp();
-		}
-		String signature = sign.getSignature(queryPath, API_SECRET);
-		queryPath += "&signature=" + signature;
-
-		URL obj = new URL(BASE_URL + urlPath + "?" + queryPath);
-		System.out.println("url:" + obj.toString());
-
-		httpRequest.send(obj, httpMethod, API_KEY);
+	public void order(String symbol, String side, String type, String timeInForce, String quantity, String price) throws Exception {
+		parameters.put("symbol", symbol);
+    	parameters.put("side", side);
+    	parameters.put("type", type);
+    	parameters.put("timeInForce", timeInForce);
+    	parameters.put("quantity", quantity);
+    	parameters.put("price", price);
+    	httpRequest.sendSignedRequest(parameters, "/api/v3/order", "POST");
+    	parameters.clear();
 	}
 
-    public static void main(String args[]) throws Exception {
-    	Spot spot = new Spot();
-    	/*
-		### public data endpoint, call send_public_request #####
-		get klines
-		*/
-    	parameters.put("limit","10");
-    	parameters.put("interval","1d");
-    	parameters.put("symbol","BTCUSDT");
-    	spot.sendPublicRequest("/api/v3/klines");
+	public void assetTransfer(String type, String asset, String amount) throws Exception {
+		parameters.put("type", type);
+    	parameters.put("asset", asset);
+    	parameters.put("amount", amount);
+    	httpRequest.sendSignedRequest(parameters, "/sapi/v1/asset/transfer", "POST");
     	parameters.clear();
+	}
 
-    	/*
-		get account informtion
-		if you can see the account details, then the API key/secret is correct
-		*/
-    	spot.sendSignedRequest("GET", "/api/v3/account");
-
-    	/*
-		place an order
-		if you see order response, then the parameters setting is correct
-		*/
-    	parameters.put("symbol", "BNBUSDT");
-    	parameters.put("side", "BUY");
-    	parameters.put("type", "LIMIT");
-    	parameters.put("timeInForce", "GTC");
-    	parameters.put("quantity", "1");
-    	parameters.put("price", "50");
-    	spot.sendSignedRequest("POST", "/api/v3/order");
+	public void futuresTransfer(String asset, String amount, String type) throws Exception {
+		parameters.put("asset", asset);
+    	parameters.put("amount", amount);
+    	parameters.put("type", type);
+    	httpRequest.sendSignedRequest(parameters, "/sapi/v1/futures/transfer", "POST");
     	parameters.clear();
-
-    	/*
-		transfer funds
-		*/
-    	parameters.put("type", "MAIN_C2C");
-    	parameters.put("asset", "USDT");
-    	parameters.put("amount", "0.1");
-    	spot.sendSignedRequest("POST", "/sapi/v1/asset/transfer");
-    	parameters.clear();
-
-    	/*
-		New Future Account Transfer (FUTURES)
-		*/
-    	parameters.put("asset", "USDT");
-    	parameters.put("amount", "0.01");
-    	parameters.put("type", "2");
-    	spot.sendSignedRequest("POST", "/sapi/v1/futures/transfer");
-    	parameters.clear();
-
-    }
+	}
 }
