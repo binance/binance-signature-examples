@@ -28,11 +28,12 @@ The secret is the same as `NhqPtmdSJYdKjVHjA7PZj4Mge3R5YNiP1e3UZjInClVN65XAbvqqM
 
 ## Which language included
 - Python
+- C++ 
+- Java
 - Shell
 - Ruby
 - NodeJS
 - PHP
-- C++
 
 ## License
 MIT
