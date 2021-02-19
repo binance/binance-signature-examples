@@ -92,12 +92,19 @@ public class Request {
 
 	public void sendSignedRequest(HashMap<String,String> parameters, String urlPath, String httpMethod) throws Exception {
 		String queryPath = "";
+		String signature = "";
 		if (!parameters.isEmpty()) {
 			queryPath += joinQueryParameters(parameters) + "&" + getTimeStamp();
 		} else {
 			queryPath += getTimeStamp();
 		}
-		String signature = sign.getSignature(queryPath, apiSecret);
+		try {
+			signature = sign.getSignature(queryPath, apiSecret);
+		}
+		catch (Exception e) {
+			System.out.println("Please Ensure Your Secret Key Is Set Up Correctly! " + e);
+			System.exit(0);
+		}
 		queryPath += "&signature=" + signature;
 
 		URL obj = new URL(baseUrl + urlPath + "?" + queryPath);
