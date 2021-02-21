@@ -3,6 +3,8 @@
 [Binance API document](https://binance-docs.github.io/apidocs/spot/en/#signed-trade-user_data-and-margin-endpoint-security) has the details of how to hash the signature.
 However we are still seeing users spending hours to find out why server still complains about bad signatures. In this repo, we give the example script on how to do signature.
 
+Code in this repository should NOT be used in production.
+
 ## How it works
 In each language, the script will try to hash following string and should return same signature
 
