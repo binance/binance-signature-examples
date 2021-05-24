@@ -102,14 +102,13 @@ response = send_signed_request('POST', '/api/v3/order', params)
 print(response)
 
 
-# transfer funds
+# User Universal Transfer
 params = {
-    "fromEmail": "",
-    "toEmail": "",
+    "type": "MAIN_MARGIN",
     "asset": "USDT",
     "amount": "0.1"
 }
-response = send_signed_request('POST', '/wapi/v3/sub-account/transfer.html', params)
+response = send_signed_request('POST', ' /sapi/v1/asset/transfer', params)
 print(response)
 
 
