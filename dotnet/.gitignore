@@ -1,0 +1,6 @@
+# Build resultsx
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio 2015
+.vs/
