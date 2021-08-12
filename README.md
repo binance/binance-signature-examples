@@ -36,6 +36,7 @@ The secret is the same as `NhqPtmdSJYdKjVHjA7PZj4Mge3R5YNiP1e3UZjInClVN65XAbvqqM
 - Ruby
 - NodeJS
 - PHP
+- Dotnet
 
 ## License
 MIT
