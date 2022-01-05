@@ -17,8 +17,13 @@ import requests
 
 
 print("Creating listen key...")
-api_key = os.getenv("BINANCE_API_KEY")
+
+# set your API key here
+api_key = ""
+
+# base_endpoint = 'https://dapi.binance.com' # production base url
 base_endpoint = "https://testnet.binancefuture.com"
+
 listen_key_json = requests.post(
     base_endpoint + "/dapi/v1/listenKey", headers={"X-MBX-APIKEY": api_key}
 )
