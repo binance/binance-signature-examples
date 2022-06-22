@@ -1,6 +1,3 @@
 # go
 
-## Added
-- signature generation 
-
-More examples are coming up ...
+Signature generation in Golang.
