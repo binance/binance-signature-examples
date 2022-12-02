@@ -3,8 +3,8 @@
 # Set up authentication with your API key:
 apiKey=""
 
-# Replace with your RSA PKCS#8 private key path:
-privKeyPath = "/Users/alice/ssh/key.pem"
+# Replace with your (RSA PKCS#8 and PEM format) private key path:
+privKeyPath = "/path/to/privateKey"
 
 # Set up the request:
 baseUrl="https://testnet.binance.vision"
