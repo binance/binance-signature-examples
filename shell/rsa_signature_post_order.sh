@@ -41,4 +41,3 @@ signature=$(rawurlencode "$rawSignature")
 
 curl -H "X-MBX-APIKEY: $apiKey" -X $apiMethod \
     "$baseUrl/$apiCall?$paramsWithTs&signature=$signature"
-
