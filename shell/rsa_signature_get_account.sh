@@ -4,14 +4,13 @@
 apiKey=""
 
 # Replace with your RSA PKCS#8 private key path:
-privKeyPath = "/Users/alice/ssh/key.pem"
+privKeyPath="/Users/alice/Private_key.txt"
 
 # Set up the request:
 baseUrl="https://testnet.binance.vision"
 apiMethod="GET"
 apiCall="api/v3/account"
 apiParams="recvWindow=5000"
-
 
 function rawurlencode {
     local value="$1"
@@ -40,4 +39,3 @@ rawSignature=$(echo -n "$paramsWithTs" \
 signature=$(rawurlencode "$rawSignature")
 
 curl -H "X-MBX-APIKEY: $apiKey" -X $apiMethod "$baseUrl/$apiCall?$paramsWithTs&signature=$signature"
-
