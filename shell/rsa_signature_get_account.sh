@@ -4,7 +4,7 @@
 apiKey=""
 
 # Replace with your RSA PKCS#8 private key path:
-privKeyPath="/Users/alice/Private_key.txt"
+privKeyPath="/path/to/privateKey"
 
 # Set up the request:
 baseUrl="https://testnet.binance.vision"
