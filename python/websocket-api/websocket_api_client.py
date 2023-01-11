@@ -79,15 +79,15 @@ def account_status_message():
 def place_order_message():
 	timestamp = get_timestamp()
 	payload = {
-	    "apiKey": apiKey,
-	    "newClientOrderId": "websocket_api_test_1",
-	    "price": "13.5640",
-	    "quantity": 1,
-	    "side": "BUY",
-	    "symbol": "SOLUSDT",
-	    "timeInForce": "GTC",
-	    "timestamp": timestamp,
-	    "type": "LIMIT"
+	  "apiKey": apiKey,
+	  "newClientOrderId": "websocket_api_test_1",
+	  "price": "13.5640",
+	  "quantity": 1,
+	  "side": "BUY",
+	  "symbol": "SOLUSDT",
+	  "timeInForce": "GTC",
+	  "timestamp": timestamp,
+	  "type": "LIMIT"
 	}
 	signature = hashing(urlencode(payload))
 	payload['signature'] = signature
