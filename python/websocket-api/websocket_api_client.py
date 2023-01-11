@@ -121,6 +121,25 @@ def on_message(wsapp, message):
 	print("Receiving message from server:")
 	print(message)
 
+def on_error(wsapp, error):
+	print(error)
+
+def on_close(wsapp, close_status_code, close_msg):
+	print("Connection close")
+	print(close_status_code)
+	print(close_msg)
+
+def on_ping(wsapp, message):
+	print("received ping from server")
+
+def on_pong(wsapp, message):
+	print("received pong from server")
+
 if __name__ == "__main__":
-	wsapp = websocket.WebSocketApp("wss://ws-api.binance.com/ws-api/v3", on_message=on_message, on_open=on_open)
+	wsapp = websocket.WebSocketApp("wss://ws-api.binance.com/ws-api/v3",
+									on_message=on_message,
+									on_open=on_open,
+									on_error=on_error,
+									on_ping=on_ping,
+									on_pong=on_pong)
 	wsapp.run_forever()
