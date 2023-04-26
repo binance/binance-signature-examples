@@ -3,6 +3,19 @@ import requests
 import time
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 
+""" This is a very simple script working on Binance API which demonstrates how to use an Ed25519 Keypair to sign the payload.
+Ensure that the Public Ed25519 key is registered as an API Key pair on Binance.
+
+Provide the API key and the path to the Ed25519 private key file.
+
+```python
+
+python ed25519_signature.py
+
+```
+
+"""
+
 # Set up authentication
 API_KEY='YOUR_API_KEY'
 PRIVATE_KEY_PATH='./private_key.pem'
