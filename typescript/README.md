@@ -16,3 +16,5 @@ See also these documentation:
 [deno-subtlecrypto]: https://deno.land/api@v1.38.2?s=SubtleCrypto
 
 This demo seperates key importing and signing funtions, which can be found in [*utils.ts*](./utils.ts).
+
+Alongside it are [*sign.ts*](./sign.ts) that shows basic signing and [*request.ts*](./request.ts) in which a rather real-world request is composed.

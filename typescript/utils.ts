@@ -31,3 +31,16 @@ export async function signWith(cryptoKey: CryptoKey, data: string) {
   const signed = await crypto.subtle.sign('HMAC', cryptoKey, enc.encode(data));
   return hex(signed);
 }
+
+export async function authAndSign(method: 'GET'|'POST'|'DELETE'|'PUT', url: URL, headers: Headers, body: string, apiKey: string, cryptoKey: CryptoKey) {
+  const search = new URLSearchParams(url.search);
+  const ts = new Date();
+  search.append('timestamp', ts.getTime().toString());
+
+  const data = `${ search.toString() }${ body ? body : "" }`;
+
+  search.append('signature', await signWith(cryptoKey, data));
+  url.search = search.toString();
+
+  return new Request(url, {method, body, headers});
+};
