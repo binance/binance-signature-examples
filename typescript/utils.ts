@@ -19,15 +19,15 @@ function hex(arrayBuffer: ArrayBuffer) {
   return hexOctets.join("");
 }
 
-export function importSecret(secret: string) {
+export async function importSecret(secret: string) {
   const enc = new TextEncoder();
-  return crypto.subtle.importKey(
+  return await crypto.subtle.importKey(
     'raw', enc.encode(secret), {name:'HMAC', hash:'SHA-256'}, false, ['sign']
   );
 }
 
-export function signWith(cryptoKey: CryptoKey, data: string) {
+export async function signWith(cryptoKey: CryptoKey, data: string) {
   const enc = new TextEncoder();
-  return crypto.subtle.sign('HMAC', cryptoKey, enc.encode(data))
-    .then((signed) => hex(signed));
+  const signed = await crypto.subtle.sign('HMAC', cryptoKey, enc.encode(data));
+  return hex(signed);
 }
