@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "esModuleInterop": true,
+    "moduleResolution": "NodeNext",
+  },
+  "ts-node": {
+    "esm": true,
+    "compilerOptions": {
+      "module": "nodenext",
+    },
+  },
+}

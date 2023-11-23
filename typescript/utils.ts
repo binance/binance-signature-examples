@@ -1,3 +1,5 @@
+const crypto = globalThis.crypto;
+
 // compute a map from bytes to their hexadecimal string representation
 function getByteToHexStringMap() {
   const byteToHex: string[] = new Array(0xff + 1);
