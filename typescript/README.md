@@ -60,6 +60,7 @@ If you're not willing to use `swc`, then please install `typesrcipt`, and manual
 
 ```
 npm i typescript
+sed -i 's/utils.ts/utils.js/g' *.ts
 ```
 
 Then run `ts-node` but without `--swc` option:
