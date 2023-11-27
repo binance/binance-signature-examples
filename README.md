@@ -39,6 +39,7 @@ The secret is the same as `NhqPtmdSJYdKjVHjA7PZj4Mge3R5YNiP1e3UZjInClVN65XAbvqqM
 - Python
 - Ruby
 - Shell
+- TypeScript (Web API)
 
 
 ## License
